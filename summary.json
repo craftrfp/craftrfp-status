@@ -1,1 +1,47 @@
-{}
+{
+  "generated_at": "2026-06-02T01:20:49.210Z",
+  "services": {
+    "marketing": {
+      "status": "down",
+      "latency_ms": 0,
+      "checked_at": "2026-06-02T01:20:49.210Z",
+      "uptime_24h": 0,
+      "uptime_90d": 0
+    },
+    "api": {
+      "status": "up",
+      "latency_ms": 0,
+      "checked_at": "2026-06-02T01:20:50.280Z",
+      "uptime_24h": 100,
+      "uptime_90d": 100
+    },
+    "db": {
+      "status": "up",
+      "latency_ms": 238,
+      "checked_at": "2026-06-02T01:20:51.662Z",
+      "uptime_24h": 100,
+      "uptime_90d": 100
+    },
+    "scribe": {
+      "status": "up",
+      "latency_ms": 937,
+      "checked_at": "2026-06-02T01:20:52.440Z",
+      "uptime_24h": 100,
+      "uptime_90d": 100
+    },
+    "exports": {
+      "status": "up",
+      "latency_ms": 305,
+      "checked_at": "2026-06-02T01:20:52.009Z",
+      "uptime_24h": 100,
+      "uptime_90d": 100
+    },
+    "auth": {
+      "status": "up",
+      "latency_ms": 205,
+      "checked_at": "2026-06-02T01:20:51.353Z",
+      "uptime_24h": 100,
+      "uptime_90d": 100
+    }
+  }
+}
