@@ -1,0 +1,43 @@
+name: Uptime
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run uptime checks
+        env:
+          BASE_URL: ${{ vars.BASE_URL }}
+          STATUS_PROBE_SECRET: ${{ secrets.STATUS_PROBE_SECRET }}
+        run: node scripts/check.mjs
+
+      - name: Commit updated status data
+        run: |
+          git config user.name "craftrfp-status[bot]"
+          git config user.email "craftrfp-status[bot]@users.noreply.github.com"
+          git add summary.json history
+          if git diff --cached --quiet; then
+            echo "No status changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: update status [skip ci]"
+          git push

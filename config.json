@@ -1,0 +1,52 @@
+{
+  "baseUrl": "https://craftrfp.com",
+  "timeoutMs": 10000,
+  "services": [
+    {
+      "id": "marketing",
+      "label": "Marketing site",
+      "path": "/",
+      "anonymous": true,
+      "expectStatus": 200
+    },
+    {
+      "id": "api",
+      "label": "API",
+      "path": "/api/health/api",
+      "anonymous": true,
+      "expectStatus": 200
+    },
+    {
+      "id": "db",
+      "label": "Database",
+      "path": "/api/health/db",
+      "headers": {
+        "Authorization": "Bearer ${STATUS_PROBE_SECRET}"
+      }
+    },
+    {
+      "id": "scribe",
+      "label": "AI Scribe",
+      "path": "/api/health/scribe",
+      "headers": {
+        "Authorization": "Bearer ${STATUS_PROBE_SECRET}"
+      }
+    },
+    {
+      "id": "exports",
+      "label": "Document Exports",
+      "path": "/api/health/exports",
+      "headers": {
+        "Authorization": "Bearer ${STATUS_PROBE_SECRET}"
+      }
+    },
+    {
+      "id": "auth",
+      "label": "Authentication",
+      "path": "/api/health/auth",
+      "headers": {
+        "Authorization": "Bearer ${STATUS_PROBE_SECRET}"
+      }
+    }
+  ]
+}
