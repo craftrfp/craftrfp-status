@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="light">
+<head>
+<meta charset="UTF-8">
+<title>CraftRFP — System Status</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CraftRFP — System Status
+   Atelier Editorial system (light + Atelier Noir dark).
+   Self-contained GitHub Pages page wired to summary.json.
+   Tokens mirror marketing/shared/tokens.css verbatim.
+   ============================================================ */
+:root {
+  --bg: #F7F2E9;
+  --bg-raise: #FBF7EF;
+  --bg-sink: #EFE7D6;
+  --ink: #171412;
+  --ink-muted: #524A42;
+  --ink-faint: #8A8077;
+  --rule: #D9CFBF;
+  --rule-strong: #B5A893;
+  --accent: #7A1A1F;
+  --accent-ink: #3A0B0E;
+  --accent-soft: #F0D9D9;
+  --accent-glow: rgba(122, 26, 31, 0.10);
+  --grid: rgba(23, 20, 18, 0.04);
+
+  /* Status semantics — restrained, editorial (not neon) */
+  --up: #3C8C54;        --up-soft: rgba(60,140,84,.12);
+  --warn: #B07D24;      --warn-soft: rgba(176,125,36,.14);
+  --down: #B23A3A;      --down-soft: rgba(178,58,58,.12);
+  --nodata: var(--rule);
+
+  --serif: "EB Garamond", ui-serif, Georgia, serif;
+  --display: "Space Grotesk", system-ui, sans-serif;
+  --sans: "DM Sans", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --shadow-md: 0 12px 32px rgba(23,20,18,.08);
+}
+[data-mode="dark"] {
+  --bg: #14110F;
+  --bg-raise: #1C1815;
+  --bg-sink: #0E0C0A;
+  --ink: #F2EADB;
+  --ink-muted: #B3A993;
+  --ink-faint: #6E6457;
+  --rule: #2A231D;
+  --rule-strong: #3D342B;
+  --accent: #C9A66B;
+  --accent-ink: #E9D6A8;
+  --accent-soft: rgba(201, 166, 107, 0.12);
+  --accent-glow: rgba(201, 166, 107, 0.18);
+  --grid: rgba(242, 234, 219, 0.04);
+  --up: #5DAE75;        --up-soft: rgba(93,174,117,.14);
+  --warn: #D6A24C;      --warn-soft: rgba(214,162,76,.16);
+  --down: #D46A6A;      --down-soft: rgba(212,106,106,.16);
+  --shadow-md: 0 12px 32px rgba(0,0,0,.4);
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .6s cubic-bezier(.4,0,.2,1), color .6s cubic-bezier(.4,0,.2,1);
+}
+body {
+  min-height: 100vh;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+a { color: inherit; text-decoration: none; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+.kicker {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent);
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.kicker::before { content: "§"; font-family: var(--serif); font-style: italic; font-size: 14px; letter-spacing: 0; }
+.meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); }
+.fn { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em; }
+.mono { font-family: var(--mono); }
+
+/* ---------- Header ---------- */
+.hdr {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid transparent; transition: border-color .2s;
+}
+.hdr.scrolled { border-bottom-color: var(--rule); }
+.hdr-inner { display: flex; align-items: center; gap: 28px; height: 68px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; }
+.mark { width: 26px; height: 26px; color: var(--ink); flex: 0 0 auto; }
+.mark svg { display: block; width: 100%; height: 100%; }
+.wordmark { font-family: var(--display); font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+.wordmark em { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--accent); margin: 0 1px; }
+.nav { display: flex; gap: 24px; margin-left: 8px; }
+.nav a { font-family: var(--display); font-size: 14px; font-weight: 500; color: var(--ink-muted); transition: color .15s; }
+.nav a:hover { color: var(--ink); }
+.hdr-right { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+.signin { font-family: var(--display); font-size: 14px; font-weight: 500; color: var(--ink-muted); white-space: nowrap; }
+.signin:hover { color: var(--ink); }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px;
+  border-radius: 4px; font-family: var(--display); font-size: 14px; font-weight: 500;
+  border: 1px solid var(--accent); background: var(--accent); color: #FBF7EF; cursor: pointer;
+  transition: background .15s, border-color .15s; white-space: nowrap;
+}
+.btn:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+.mode-toggle {
+  width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--rule);
+  background: var(--bg-raise); color: var(--ink); cursor: pointer; display: grid; place-items: center;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.mode-toggle:hover { border-color: var(--accent); color: var(--accent); background: var(--bg-sink); }
+
+/* ---------- Hero ---------- */
+.hero { padding: 64px 0 40px; border-bottom: 1px solid var(--rule); }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
+.hero h1 {
+  font-family: var(--serif); font-weight: 500; font-style: italic;
+  font-size: clamp(40px, 6vw, 76px); line-height: 1.0; letter-spacing: -0.02em;
+  margin: 18px 0 0; color: var(--ink); text-wrap: balance; max-width: 16ch;
+}
+.hero .lede { font-family: var(--serif); font-size: clamp(17px, 1.4vw, 20px); color: var(--ink-muted); margin: 18px 0 0; max-width: 52ch; }
+
+/* Big operational badge (top-right of hero) */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 12px; flex: 0 0 auto;
+  padding: 14px 20px; border-radius: 6px; border: 1px solid var(--up);
+  background: var(--up-soft); margin-top: 6px;
+}
+.status-badge.warn { border-color: var(--warn); background: var(--warn-soft); }
+.status-badge.down { border-color: var(--down); background: var(--down-soft); }
+.status-badge .ring { position: relative; width: 14px; height: 14px; flex: 0 0 auto; }
+.status-badge .txt { display: flex; flex-direction: column; line-height: 1.25; }
+.status-badge .ring span { position: absolute; inset: 0; border-radius: 999px; background: var(--up); }
+.status-badge.warn .ring span, .status-badge.warn .ring::after { background: var(--warn); }
+.status-badge.down .ring span, .status-badge.down .ring::after { background: var(--down); }
+.status-badge .ring::after {
+  content: ""; position: absolute; inset: 0; border-radius: 999px; background: var(--up);
+  animation: pulse 2.4s ease-out infinite;
+}
+@keyframes pulse { 0% { transform: scale(1); opacity: .55; } 70%,100% { transform: scale(2.6); opacity: 0; } }
+.status-badge .lab { display: block; white-space: nowrap; font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--up); line-height: 1.1; }
+.status-badge.warn .lab { color: var(--warn); }
+.status-badge.down .lab { color: var(--down); }
+.status-badge .sub { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-top: 3px; white-space: nowrap; }
+
+/* KPI strip — inline vertical rules, no card chrome */
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 40px; }
+.kpi { padding: 4px 28px; border-left: 1px solid var(--rule); }
+.kpi:first-child { padding-left: 0; border-left: 0; }
+.kpi .v { font-family: var(--serif); font-style: italic; font-size: clamp(30px, 3.4vw, 44px); line-height: 1; color: var(--ink); letter-spacing: -0.01em; }
+.kpi .v.good { color: var(--up); font-style: normal; font-family: var(--display); font-weight: 600; }
+.kpi .v.warn { color: var(--warn); font-style: normal; font-family: var(--display); font-weight: 600; }
+.kpi .v.down { color: var(--down); font-style: normal; font-family: var(--display); font-weight: 600; }
+.kpi .k { font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-top: 10px; }
+
+/* ---------- Section scaffolding ---------- */
+.section { padding: 56px 0; }
+.section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; flex-wrap: wrap; }
+.section-head h2 { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: clamp(28px, 3vw, 40px); line-height: 1.05; letter-spacing: -0.015em; margin: 10px 0 0; color: var(--ink); }
+.section-head .note { font-family: var(--serif); font-size: 15px; color: var(--ink-muted); max-width: 42ch; text-align: right; }
+
+/* ---------- Service cards ---------- */
+.svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.svc {
+  background: var(--bg-raise); border: 1px solid var(--rule); border-radius: 6px; padding: 18px 18px 16px;
+  display: flex; flex-direction: column; gap: 12px; transition: border-color .2s;
+}
+.svc:hover { border-color: var(--rule-strong); }
+.svc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.svc-cat { font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.svc-name { font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--ink); margin-top: 3px; line-height: 1.15; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+.pill .dot { width: 6px; height: 6px; border-radius: 999px; }
+.pill.up { color: var(--up); background: var(--up-soft); } .pill.up .dot { background: var(--up); }
+.pill.warn { color: var(--warn); background: var(--warn-soft); } .pill.warn .dot { background: var(--warn); }
+.pill.down { color: var(--down); background: var(--down-soft); } .pill.down .dot { background: var(--down); }
+.pill.nodata { color: var(--ink-faint); background: var(--bg-sink); } .pill.nodata .dot { background: var(--nodata); }
+/* 7-day mini strip inside the card */
+.mini { display: flex; gap: 2px; height: 22px; align-items: stretch; }
+.mini i { flex: 1; border-radius: 1px; background: var(--up); }
+.mini i.warn { background: var(--warn); } .mini i.down { background: var(--down); } .mini i.nodata { background: var(--nodata); }
+.svc-foot { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; padding-top: 10px; border-top: 1px dashed var(--rule); }
+.svc-foot .lat, .svc-foot .up { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+.svc-foot .lat small, .svc-foot .up small { color: var(--ink-faint); }
+.lat-q { font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; }
+.lat-q.good { color: var(--up); } .lat-q.normal { color: var(--ink-faint); } .lat-q.elevated { color: var(--warn); } .lat-q.down { color: var(--down); }
+
+/* ---------- 90-day uptime record ---------- */
+.uptime-panel { background: var(--bg-raise); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 24px; }
+.uptime-axis { display: flex; justify-content: space-between; padding: 14px 0 6px; }
+.uptime-row { padding: 16px 0; border-top: 1px dashed var(--rule); }
+.uptime-row:first-of-type { border-top: 0; }
+.uptime-row .r-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.uptime-row .r-name { font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--ink); white-space: nowrap; }
+.uptime-row .r-name span { font-family: var(--mono); font-weight: 400; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-left: 10px; }
+.uptime-row .r-pct { font-family: var(--mono); font-size: 13px; color: var(--up); }
+.bars { display: flex; gap: 2px; height: 34px; align-items: stretch; }
+.bars i { flex: 1; min-width: 0; border-radius: 1px; background: var(--up); transition: transform .1s; }
+.bars i.warn { background: var(--warn); } .bars i.down { background: var(--down); } .bars i.nodata { background: var(--nodata); opacity: .5; }
+.bars i:hover { transform: scaleY(1.12); }
+.uptime-foot { display: flex; align-items: center; gap: 18px; padding: 16px 0 6px; border-top: 1px solid var(--rule); margin-top: 4px; }
+.legend { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); }
+.legend span i { width: 9px; height: 9px; border-radius: 2px; }
+
+/* ---------- Incidents ---------- */
+.inc-banner { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border: 1px solid var(--up); background: var(--up-soft); border-radius: 6px; margin-bottom: 24px; }
+.inc-banner .check { width: 20px; height: 20px; color: var(--up); flex: 0 0 auto; }
+.inc-banner b { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink); }
+.inc-banner span { color: var(--ink-muted); font-size: 14px; }
+.load-state { background: var(--bg-raise); border: 1px solid var(--rule); border-radius: 8px; padding: 24px; color: var(--ink-muted); }
+.load-state strong { color: var(--ink); font-family: var(--display); }
+
+/* ---------- Footer ---------- */
+.page-foot { padding: 28px 0; border-top: 1px solid var(--rule); margin-top: 24px; }
+.page-foot .container { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.ftr { background: var(--bg-sink); border-top: 1px solid var(--rule); padding: 64px 0 40px; }
+.ftr-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 32px; }
+.ftr-brand .prose { color: var(--ink-muted); margin-top: 16px; max-width: 34ch; font-size: 14px; line-height: 1.6; }
+.ftr h4 { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 16px; font-weight: 400; }
+.ftr ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ftr ul a { font-size: 14px; color: var(--ink-muted); transition: color .15s; }
+.ftr ul a:hover { color: var(--ink); }
+.ftr-bottom { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--rule); }
+
+.theme-veil { position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0; background: radial-gradient(circle at 80% 10%, var(--accent-glow), transparent 60%); transition: opacity .55s cubic-bezier(.4,0,.2,1); }
+.theme-veil.active { opacity: 1; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 920px) {
+  .svc-grid { grid-template-columns: repeat(2, 1fr); }
+  .kpis { grid-template-columns: repeat(2, 1fr); gap: 24px 0; }
+  .kpi { padding: 4px 20px; } .kpi:nth-child(3) { border-left: 0; padding-left: 0; }
+  .nav { display: none; }
+  .section-head .note { text-align: left; }
+}
+@media (max-width: 560px) {
+  .container { padding: 0 20px; }
+  .hdr-inner { gap: 14px; height: 60px; }
+  .svc-grid { grid-template-columns: 1fr; }
+  .signin { display: none; }
+  .ftr-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .ftr-brand { grid-column: 1 / -1; }
+  /* 90 day-bars get cramped on a phone — tighten the gaps so each bar stays visible */
+  .uptime-panel { padding: 8px 16px; }
+  .bars { gap: 1px; }
+  .mini { gap: 1px; }
+  .kpi .v { font-size: clamp(26px, 7vw, 38px); }
+  .hero { padding: 48px 0 32px; }
+}
+@media (max-width: 400px) {
+  /* keep the header from overflowing on small phones */
+  .btn { padding: 0 14px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+<div class="theme-veil" id="veil"></div>
+
+<!-- ====================== HEADER ====================== -->
+<header class="hdr" id="hdr">
+  <div class="container hdr-inner">
+    <a class="brand" href="https://craftrfp.com/">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><mask id="bmA"><rect width="100" height="100" fill="white"/><rect x="63" y="23" width="14" height="14" fill="black"/><rect x="23" y="63" width="14" height="14" fill="black"/></mask><mask id="bmB"><rect width="100" height="100" fill="white"/><rect x="23" y="23" width="14" height="14" fill="black"/><rect x="63" y="63" width="14" height="14" fill="black"/></mask></defs><rect x="10" y="30" width="80" height="40" rx="20" fill="none" stroke="currentColor" stroke-width="10" mask="url(#bmA)"/><rect x="30" y="10" width="40" height="80" rx="20" fill="none" stroke="currentColor" stroke-width="10" mask="url(#bmB)"/><g transform="rotate(45 50 50)"><rect x="44" y="44" width="12" height="12" fill="var(--accent)"/></g></svg></span>
+      <span class="wordmark">craft<em>r</em>fp</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="https://craftrfp.com/features">Features</a>
+      <a href="https://craftrfp.com/how-it-works">How it works</a>
+      <a href="https://craftrfp.com/pricing">Pricing</a>
+      <a href="https://craftrfp.com/security">Security</a>
+    </nav>
+    <div class="hdr-right">
+      <button class="mode-toggle" id="modeToggle" aria-label="Toggle light or dark mode" title="Switch theme">
+        <svg id="moonIcon" width="15" height="15" viewBox="0 0 20 20" fill="currentColor"><path d="M16.5 12.5A7 7 0 0 1 7.5 3.5a.75.75 0 0 0-1.02-.93A8 8 0 1 0 17.43 13.52a.75.75 0 0 0-.93-1.02z"/></svg>
+        <svg id="sunIcon" width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:none"><circle cx="10" cy="10" r="3.2" fill="currentColor" stroke="none"/><path d="M10 1.8v2.4M10 15.8v2.4M1.8 10h2.4M15.8 10h2.4M4.2 4.2l1.7 1.7M14.1 14.1l1.7 1.7M4.2 15.8l1.7-1.7M14.1 5.9l1.7-1.7"/></svg>
+      </button>
+      <a class="signin" href="https://craftrfp.com/auth/login">Sign in</a>
+      <a class="btn" href="https://craftrfp.com/auth/signup">Start free trial →</a>
+    </div>
+  </div>
+</header>
+
+<!-- ====================== HERO ====================== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-top">
+      <div>
+        <span class="kicker">CraftRFP Status</span>
+        <h1 id="overallTitle">Loading system status</h1>
+        <p class="lede" id="overallLede">Fetching the latest public CraftRFP service checks from the independent status monitor.</p>
+      </div>
+      <div class="status-badge" id="overallBadge">
+        <span class="ring"><span></span></span>
+        <span class="txt">
+          <span class="lab" id="overallBadgeLabel">Loading status</span>
+          <span class="sub" id="updatedLabel">Updated just now</span>
+        </span>
+      </div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="v" id="servicesKpi">6</div><div class="k">Services monitored</div></div>
+      <div class="kpi"><div class="v good" id="uptimeKpi">--</div><div class="k">Average uptime · 90 days</div></div>
+      <div class="kpi"><div class="v" id="incidentsKpi">0</div><div class="k">Active incidents</div></div>
+      <div class="kpi"><div class="v" id="latencyKpi">--</div><div class="k">Median response</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== LIVE CHECKS ====================== -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="kicker">Live checks</span>
+        <h2>Public services</h2>
+      </div>
+      <p class="note">Each service is probed every 5 minutes from outside the platform. The strip shows the most recent checks available.</p>
+    </div>
+    <div class="svc-grid" id="svcGrid" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ====================== 90-DAY HISTORY ====================== -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="kicker">90-day history</span>
+        <h2>Uptime record</h2>
+      </div>
+      <p class="note">Each bar is one day when history is available. Every mark carries a text label for screen readers.</p>
+    </div>
+    <div class="uptime-panel">
+      <div class="uptime-axis"><span class="fn">90 days ago</span><span class="fn">Today</span></div>
+      <div id="uptimeRows" aria-live="polite"></div>
+      <div class="uptime-foot">
+        <div class="legend">
+          <span><i style="background:var(--up)"></i> Operational</span>
+          <span><i style="background:var(--warn)"></i> Degraded</span>
+          <span><i style="background:var(--down)"></i> Outage</span>
+          <span><i style="background:var(--rule);opacity:.5"></i> No data</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== INCIDENTS ====================== -->
+<!-- v1 intentionally omits an incidents feed because summary.json has no incidents field yet. -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="kicker">Incident timeline</span>
+        <h2>Recent incidents</h2>
+      </div>
+      <p class="note">Incident history will be wired when the monitor publishes an incidents feed.</p>
+    </div>
+    <div class="inc-banner">
+      <svg class="check" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 1.6a8.4 8.4 0 1 0 0 16.8 8.4 8.4 0 0 0 0-16.8zm4 6.2-4.8 4.8a.9.9 0 0 1-1.27 0L5.99 10.9a.9.9 0 1 1 1.27-1.27l1.31 1.3 4.16-4.16A.9.9 0 0 1 14 8z"/></svg>
+      <b>No active incidents.</b>
+      <span id="incidentNote">This page currently reports live service health and uptime.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== PAGE META ====================== -->
+<div class="page-foot">
+  <div class="container">
+    <span class="fn">Checks run every 5 minutes · monitored by an independent probe, hosted off-platform</span>
+    <span class="fn" id="genLabel">Last generated just now</span>
+  </div>
+</div>
+
+<!-- ====================== SITE FOOTER ====================== -->
+<footer class="ftr">
+  <div class="container">
+    <div class="ftr-grid">
+      <div class="ftr-brand">
+        <a class="brand" href="https://craftrfp.com/">
+          <span class="mark" aria-hidden="true"><svg viewBox="0 0 100 100"><defs><mask id="bmC"><rect width="100" height="100" fill="white"/><rect x="63" y="23" width="14" height="14" fill="black"/><rect x="23" y="63" width="14" height="14" fill="black"/></mask><mask id="bmD"><rect width="100" height="100" fill="white"/><rect x="23" y="23" width="14" height="14" fill="black"/><rect x="63" y="63" width="14" height="14" fill="black"/></mask></defs><rect x="10" y="30" width="80" height="40" rx="20" fill="none" stroke="currentColor" stroke-width="10" mask="url(#bmC)"/><rect x="30" y="10" width="40" height="80" rx="20" fill="none" stroke="currentColor" stroke-width="10" mask="url(#bmD)"/><g transform="rotate(45 50 50)"><rect x="44" y="44" width="12" height="12" fill="var(--accent)"/></g></svg></span>
+          <span class="wordmark">craft<em>r</em>fp</span>
+        </a>
+        <p class="prose">An editorial proposal workbench. Craft winning RFP responses in under 30 minutes.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="https://craftrfp.com/features">Features</a></li>
+          <li><a href="https://craftrfp.com/how-it-works">How it works</a></li>
+          <li><a href="https://craftrfp.com/pricing">Pricing</a></li>
+          <li><a href="https://craftrfp.com/security">Security</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="https://craftrfp.com/about">About</a></li>
+          <li><a href="https://craftrfp.com/faq">FAQ</a></li>
+          <li><a href="https://craftrfp.com/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="https://craftrfp.com/help">Help center</a></li>
+          <li><a href="/">System status</a></li>
+          <li><a href="https://craftrfp.com/privacy">Privacy</a></li>
+          <li><a href="https://craftrfp.com/terms">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr-bottom">
+      <span class="fn">© 2026 CraftRFP LLC · Made in Glastonbury, Connecticut</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- Theme toggle (light ⇄ Atelier Noir) ---------- */
+(function(){
+  var root = document.documentElement, moon = document.getElementById('moonIcon'), sun = document.getElementById('sunIcon');
+  try { var saved = localStorage.getItem('mkt-mode'); if (saved) root.dataset.mode = saved; } catch(e){}
+  function paint(){ var dark = root.dataset.mode === 'dark'; moon.style.display = dark ? 'none' : 'block'; sun.style.display = dark ? 'block' : 'none'; }
+  paint();
+  document.getElementById('modeToggle').addEventListener('click', function(){
+    var veil = document.getElementById('veil'); veil.classList.add('active');
+    root.dataset.mode = root.dataset.mode === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('mkt-mode', root.dataset.mode); } catch(e){}
+    paint();
+    setTimeout(function(){ veil.classList.remove('active'); }, 560);
+  });
+  var onScroll = function(){ document.getElementById('hdr').classList.toggle('scrolled', window.scrollY > 12); };
+  onScroll(); window.addEventListener('scroll', onScroll);
+})();
+
+/* ---------- Live status data ---------- */
+(function(){
+  var SERVICE_ORDER = ['marketing', 'api', 'db', 'scribe', 'exports', 'auth'];
+  var SERVICE_META = {
+    marketing: { cat: 'Marketing', name: 'Marketing site' },
+    api: { cat: 'API', name: 'API' },
+    db: { cat: 'Data', name: 'Database' },
+    scribe: { cat: 'Scribe', name: 'Scribe (AI)' },
+    exports: { cat: 'Exports', name: 'Document exports' },
+    auth: { cat: 'Auth', name: 'Authentication' }
+  };
+  var STATUS = {
+    up: { cls: 'up', label: 'Operational', headline: 'All systems operational', badge: 'All operational' },
+    degraded: { cls: 'warn', label: 'Degraded', headline: 'Degraded performance', badge: 'Degraded performance' },
+    down: { cls: 'down', label: 'Outage', headline: 'Service disruption', badge: 'Service disruption' },
+    nodata: { cls: 'nodata', label: 'No data', headline: 'Unable to load status right now', badge: 'Status unavailable' }
+  };
+  var REFRESH_MS = 60000;
+  var MS_DAY = 86400000;
+
+  function $(id) { return document.getElementById(id); }
+
+  function clear(node) {
+    while (node.firstChild) node.removeChild(node.firstChild);
+  }
+
+  function setText(id, value) {
+    var node = $(id);
+    if (node) node.textContent = value;
+  }
+
+  function validStatus(status) {
+    return Object.prototype.hasOwnProperty.call(STATUS, status) ? status : 'nodata';
+  }
+
+  function statusInfo(status) {
+    return STATUS[validStatus(status)];
+  }
+
+  function fmtLatency(value) {
+    if (typeof value !== 'number' || !isFinite(value) || value <= 0) return '--';
+    if (value >= 1000) return (value / 1000).toFixed(2) + ' s';
+    return Math.round(value) + ' ms';
+  }
+
+  function fmtPct(value) {
+    if (typeof value !== 'number' || !isFinite(value)) return '--';
+    return value.toFixed(value % 1 === 0 ? 0 : 2) + '%';
+  }
+
+  function median(values) {
+    var nums = values.filter(function(value) { return typeof value === 'number' && isFinite(value) && value > 0; }).sort(function(a, b) { return a - b; });
+    if (nums.length === 0) return null;
+    var mid = Math.floor(nums.length / 2);
+    return nums.length % 2 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+  }
+
+  function average(values) {
+    var nums = values.filter(function(value) { return typeof value === 'number' && isFinite(value); });
+    if (nums.length === 0) return null;
+    return nums.reduce(function(total, value) { return total + value; }, 0) / nums.length;
+  }
+
+  function relativeTime(iso) {
+    var date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return 'unknown';
+    var seconds = Math.max(0, Math.round((Date.now() - date.getTime()) / 1000));
+    if (seconds < 45) return 'just now';
+    var minutes = Math.round(seconds / 60);
+    if (minutes < 60) return minutes + ' min ago';
+    var hours = Math.round(minutes / 60);
+    if (hours < 24) return hours + ' hr ago';
+    var days = Math.round(hours / 24);
+    return days + ' day' + (days === 1 ? '' : 's') + ' ago';
+  }
+
+  function dayLabel(date) {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function statusLabel(status) {
+    return statusInfo(status).label;
+  }
+
+  function createPill(status) {
+    var info = statusInfo(status);
+    var pill = document.createElement('span');
+    pill.className = 'pill ' + info.cls;
+    var dot = document.createElement('span');
+    dot.className = 'dot';
+    pill.appendChild(dot);
+    pill.appendChild(document.createTextNode(info.label));
+    return pill;
+  }
+
+  function buildCard(serviceKey, service, history) {
+    var meta = SERVICE_META[serviceKey];
+    var status = validStatus(service && service.status);
+    var card = document.createElement('div');
+    card.className = 'svc';
+
+    var top = document.createElement('div');
+    top.className = 'svc-top';
+    var titleWrap = document.createElement('div');
+    var cat = document.createElement('div');
+    cat.className = 'svc-cat';
+    cat.textContent = meta.cat;
+    var name = document.createElement('div');
+    name.className = 'svc-name';
+    name.textContent = meta.name;
+    titleWrap.appendChild(cat);
+    titleWrap.appendChild(name);
+    top.appendChild(titleWrap);
+    top.appendChild(createPill(status));
+    card.appendChild(top);
+
+    if (history && history.length) {
+      var mini = document.createElement('div');
+      mini.className = 'mini';
+      mini.setAttribute('aria-label', 'Recent service history');
+      history.slice(-7).forEach(function(day) {
+        var bar = document.createElement('i');
+        var dayStatus = validStatus(day.status);
+        var info = statusInfo(dayStatus);
+        if (info.cls !== 'up') bar.className = info.cls;
+        bar.title = day.label + ' — ' + info.label;
+        mini.appendChild(bar);
+      });
+      card.appendChild(mini);
+    }
+
+    var foot = document.createElement('div');
+    foot.className = 'svc-foot';
+    var latency = document.createElement('span');
+    latency.className = 'lat';
+    latency.textContent = fmtLatency(service && service.latency_ms) + ' ';
+    var latencySmall = document.createElement('small');
+    latencySmall.textContent = 'response';
+    latency.appendChild(latencySmall);
+    foot.appendChild(latency);
+    var quality = document.createElement('span');
+    var latencyStatus = status === 'down' ? 'down' : typeof service.latency_ms === 'number' && service.latency_ms > 1000 ? 'elevated' : 'normal';
+    quality.className = 'lat-q ' + latencyStatus;
+    quality.textContent = latencyStatus;
+    foot.appendChild(quality);
+    var uptime24 = document.createElement('span');
+    uptime24.className = 'up';
+    uptime24.textContent = fmtPct(service && service.uptime_24h) + ' ';
+    var uptime24Small = document.createElement('small');
+    uptime24Small.textContent = '24h';
+    uptime24.appendChild(uptime24Small);
+    foot.appendChild(uptime24);
+    var uptime90 = document.createElement('span');
+    uptime90.className = 'up';
+    uptime90.textContent = fmtPct(service && service.uptime_90d) + ' ';
+    var uptime90Small = document.createElement('small');
+    uptime90Small.textContent = '90d';
+    uptime90.appendChild(uptime90Small);
+    foot.appendChild(uptime90);
+    card.appendChild(foot);
+
+    return card;
+  }
+
+  function buildUptimeRow(serviceKey, service, history) {
+    var meta = SERVICE_META[serviceKey];
+    var row = document.createElement('div');
+    row.className = 'uptime-row';
+
+    var head = document.createElement('div');
+    head.className = 'r-head';
+    var name = document.createElement('div');
+    name.className = 'r-name';
+    name.textContent = meta.name;
+    var cat = document.createElement('span');
+    cat.textContent = meta.cat;
+    name.appendChild(cat);
+    var pct = document.createElement('div');
+    pct.className = 'r-pct';
+    pct.textContent = fmtPct(service && service.uptime_90d) + ' uptime';
+    head.appendChild(name);
+    head.appendChild(pct);
+    row.appendChild(head);
+
+    if (history && history.length) {
+      var bars = document.createElement('div');
+      bars.className = 'bars';
+      history.forEach(function(day) {
+        var bar = document.createElement('i');
+        var dayStatus = validStatus(day.status);
+        var info = statusInfo(dayStatus);
+        if (info.cls !== 'up') bar.className = info.cls;
+        var label = day.label + ' — ' + info.label;
+        bar.title = label;
+        bar.setAttribute('aria-label', label);
+        bars.appendChild(bar);
+      });
+      row.appendChild(bars);
+    } else {
+      var empty = document.createElement('div');
+      empty.className = 'fn';
+      empty.textContent = 'History not available yet';
+      row.appendChild(empty);
+    }
+
+    return row;
+  }
+
+  function latestByDay(checks) {
+    var byDate = {};
+    checks.forEach(function(check) {
+      if (!check || typeof check.checked_at !== 'string') return;
+      var date = new Date(check.checked_at);
+      if (Number.isNaN(date.getTime())) return;
+      var key = date.toISOString().slice(0, 10);
+      var existing = byDate[key];
+      if (!existing || new Date(existing.checked_at).getTime() < date.getTime()) {
+        byDate[key] = check;
+      }
+    });
+
+    var days = [];
+    for (var i = 89; i >= 0; i -= 1) {
+      var day = new Date(Date.now() - i * MS_DAY);
+      var key = day.toISOString().slice(0, 10);
+      var check = byDate[key];
+      days.push({
+        status: check ? validStatus(check.status) : 'nodata',
+        label: dayLabel(day)
+      });
+    }
+    return days;
+  }
+
+  function normalizeHistory(data) {
+    if (data && Array.isArray(data.checks)) return latestByDay(data.checks);
+    if (data && Array.isArray(data.daily)) {
+      return data.daily.slice(-90).map(function(day) {
+        return {
+          status: validStatus(day.status),
+          label: String(day.date || 'Unknown date')
+        };
+      });
+    }
+    return null;
+  }
+
+  function fetchHistory(serviceKey) {
+    return fetch('./history/.raw/' + encodeURIComponent(serviceKey) + '.json', { cache: 'no-store' })
+      .then(function(response) {
+        if (!response.ok) return null;
+        return response.json();
+      })
+      .then(normalizeHistory)
+      .catch(function() { return null; });
+  }
+
+  function overallStatus(services) {
+    var statuses = SERVICE_ORDER.map(function(key) {
+      return validStatus(services[key] && services[key].status);
+    });
+    if (statuses.some(function(status) { return status === 'down'; })) return 'down';
+    if (statuses.some(function(status) { return status === 'degraded'; })) return 'degraded';
+    if (statuses.some(function(status) { return status === 'nodata'; })) return 'nodata';
+    return 'up';
+  }
+
+  function renderLoadFailure() {
+    setText('overallTitle', 'Unable to load status right now');
+    setText('overallLede', 'The public status monitor could not be reached. Please refresh in a moment.');
+    setText('overallBadgeLabel', 'Status unavailable');
+    setText('updatedLabel', 'Retrying every minute');
+    setText('genLabel', 'Last generated unavailable');
+    setText('uptimeKpi', '--');
+    setText('incidentsKpi', '--');
+    setText('latencyKpi', '--');
+    $('overallBadge').className = 'status-badge warn';
+
+    var grid = $('svcGrid');
+    var rows = $('uptimeRows');
+    clear(grid);
+    clear(rows);
+
+    var state = document.createElement('div');
+    state.className = 'load-state';
+    var strong = document.createElement('strong');
+    strong.textContent = 'Unable to load status right now.';
+    state.appendChild(strong);
+    state.appendChild(document.createTextNode(' The monitor data will refresh automatically every 60 seconds.'));
+    grid.appendChild(state);
+  }
+
+  function render(summary, histories) {
+    var services = summary && summary.services ? summary.services : {};
+    var status = overallStatus(services);
+    var statusMeta = statusInfo(status);
+    var generatedAt = typeof summary.generated_at === 'string' ? summary.generated_at : null;
+    var downCount = SERVICE_ORDER.filter(function(key) { return validStatus(services[key] && services[key].status) === 'down'; }).length;
+    var degradedCount = SERVICE_ORDER.filter(function(key) { return validStatus(services[key] && services[key].status) === 'degraded'; }).length;
+
+    setText('overallTitle', statusMeta.headline);
+    if (status === 'up') {
+      setText('overallLede', 'Every public CraftRFP service is reporting healthy checks. This page is monitored independently and hosted outside our own infrastructure, so it stays up even when we do not.');
+    } else if (status === 'degraded') {
+      setText('overallLede', 'One or more public services are responding, but slower or less reliably than expected. We continue to check them from outside the platform.');
+    } else if (status === 'down') {
+      setText('overallLede', 'One or more public services are currently failing health checks. This monitor is hosted outside our own infrastructure.');
+    } else {
+      setText('overallLede', 'Some service checks are missing from the latest monitor payload. The page will retry automatically.');
+    }
+    setText('overallBadgeLabel', statusMeta.badge);
+    setText('updatedLabel', generatedAt ? 'Updated ' + relativeTime(generatedAt) : 'Updated unknown');
+    setText('genLabel', generatedAt ? 'Last generated ' + new Date(generatedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Last generated unknown');
+    $('overallBadge').className = 'status-badge' + (statusMeta.cls === 'up' ? '' : ' ' + statusMeta.cls);
+
+    setText('servicesKpi', String(SERVICE_ORDER.length));
+    var avgUptime = average(SERVICE_ORDER.map(function(key) { return services[key] && services[key].uptime_90d; }));
+    setText('uptimeKpi', avgUptime === null ? '--' : fmtPct(avgUptime));
+    $('uptimeKpi').className = 'v ' + (status === 'down' ? 'down' : status === 'degraded' ? 'warn' : 'good');
+    setText('incidentsKpi', String(downCount + degradedCount));
+    $('incidentsKpi').className = 'v ' + (downCount ? 'down' : degradedCount ? 'warn' : '');
+    setText('latencyKpi', fmtLatency(median(SERVICE_ORDER.map(function(key) { return services[key] && services[key].latency_ms; }))));
+
+    var grid = $('svcGrid');
+    var rows = $('uptimeRows');
+    clear(grid);
+    clear(rows);
+    SERVICE_ORDER.forEach(function(key) {
+      grid.appendChild(buildCard(key, services[key], histories[key]));
+      rows.appendChild(buildUptimeRow(key, services[key], histories[key]));
+    });
+  }
+
+  function loadStatus() {
+    fetch('./summary.json', { cache: 'no-store' })
+      .then(function(response) {
+        if (!response.ok) throw new Error('summary fetch failed');
+        return response.json();
+      })
+      .then(function(summary) {
+        return Promise.all(SERVICE_ORDER.map(fetchHistory)).then(function(historyList) {
+          var histories = {};
+          SERVICE_ORDER.forEach(function(key, index) {
+            histories[key] = historyList[index];
+          });
+          render(summary, histories);
+        });
+      })
+      .catch(renderLoadFailure);
+  }
+
+  loadStatus();
+  setInterval(loadStatus, REFRESH_MS);
+})();
+</script>
+</body>
+</html>
