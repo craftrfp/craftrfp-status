@@ -219,9 +219,26 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- Incidents ---------- */
 .inc-banner { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border: 1px solid var(--up); background: var(--up-soft); border-radius: 6px; margin-bottom: 24px; }
+.inc-banner.warn { border-color: var(--warn); background: var(--warn-soft); }
+.inc-banner.down { border-color: var(--down); background: var(--down-soft); }
 .inc-banner .check { width: 20px; height: 20px; color: var(--up); flex: 0 0 auto; }
+.inc-banner.warn .check { color: var(--warn); }
+.inc-banner.down .check { color: var(--down); }
 .inc-banner b { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink); }
 .inc-banner span { color: var(--ink-muted); font-size: 14px; }
+.inc { padding: 22px 0; border-top: 1px solid var(--rule); }
+.inc:first-of-type { border-top: 0; }
+.inc-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.inc-top h3 { flex: 1 1 auto; font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 21px; color: var(--ink); margin: 0; line-height: 1.2; }
+.inc-date { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-left: auto; white-space: nowrap; }
+.inc-tags { display: flex; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+.tag { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 9px; border-radius: 3px; border: 1px solid var(--rule); color: var(--ink-muted); background: var(--bg-sink); white-space: nowrap; }
+.tag.resolved { color: var(--up); border-color: var(--up-soft); background: var(--up-soft); }
+.tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.tl li { display: grid; grid-template-columns: 132px 1fr; gap: 16px; align-items: baseline; }
+.tl .when { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: .04em; }
+.tl .what { color: var(--ink-muted); font-size: 14.5px; line-height: 1.5; }
+.tl .what b { color: var(--ink); font-weight: 600; font-family: var(--display); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; margin-right: 8px; }
 .load-state { background: var(--bg-raise); border: 1px solid var(--rule); border-radius: 8px; padding: 24px; color: var(--ink-muted); }
 .load-state strong { color: var(--ink); font-family: var(--display); }
 
@@ -259,6 +276,8 @@ a { color: inherit; text-decoration: none; }
   .uptime-panel { padding: 8px 16px; }
   .bars { gap: 1px; }
   .mini { gap: 1px; }
+  .tl li { grid-template-columns: 1fr; gap: 2px; }
+  .inc-date { margin-left: 0; }
   .kpi .v { font-size: clamp(26px, 7vw, 38px); }
   .hero { padding: 48px 0 32px; }
 }
@@ -361,7 +380,6 @@ a { color: inherit; text-decoration: none; }
 </section>
 
 <!-- ====================== INCIDENTS ====================== -->
-<!-- v1 intentionally omits an incidents feed because summary.json has no incidents field yet. -->
 <section class="section">
   <div class="container">
     <div class="section-head">
@@ -369,13 +387,14 @@ a { color: inherit; text-decoration: none; }
         <span class="kicker">Incident timeline</span>
         <h2>Recent incidents</h2>
       </div>
-      <p class="note">Incident history will be wired when the monitor publishes an incidents feed.</p>
+      <p class="note">Detected from public checks, then summarized after recovery. Human overrides always take precedence.</p>
     </div>
-    <div class="inc-banner">
+    <div class="inc-banner" id="incidentBanner">
       <svg class="check" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10 1.6a8.4 8.4 0 1 0 0 16.8 8.4 8.4 0 0 0 0-16.8zm4 6.2-4.8 4.8a.9.9 0 0 1-1.27 0L5.99 10.9a.9.9 0 1 1 1.27-1.27l1.31 1.3 4.16-4.16A.9.9 0 0 1 14 8z"/></svg>
-      <b>No active incidents.</b>
-      <span id="incidentNote">This page currently reports live service health and uptime.</span>
+      <b id="incidentBannerTitle">No active incidents.</b>
+      <span id="incidentNote">All services have been operational across the available history.</span>
     </div>
+    <div id="incidentCards" aria-live="polite"></div>
   </div>
 </section>
 
@@ -466,6 +485,19 @@ a { color: inherit; text-decoration: none; }
     down: { cls: 'down', label: 'Outage', headline: 'Service disruption', badge: 'Service disruption' },
     nodata: { cls: 'nodata', label: 'No data', headline: 'Unable to load status right now', badge: 'Status unavailable' }
   };
+  var INCIDENT_STATE = {
+    identified: 'Identified',
+    monitoring: 'Monitoring',
+    resolved: 'Resolved'
+  };
+  var INCIDENT_STATUS = {
+    resolved: 'Resolved',
+    ongoing: 'Ongoing'
+  };
+  var INCIDENT_SEVERITY = {
+    minor: 'Minor',
+    major: 'Major'
+  };
   var REFRESH_MS = 60000;
   var MS_DAY = 86400000;
 
@@ -482,6 +514,18 @@ a { color: inherit; text-decoration: none; }
 
   function validStatus(status) {
     return Object.prototype.hasOwnProperty.call(STATUS, status) ? status : 'nodata';
+  }
+
+  function validIncidentStatus(status) {
+    return Object.prototype.hasOwnProperty.call(INCIDENT_STATUS, status) ? status : 'ongoing';
+  }
+
+  function validIncidentSeverity(severity) {
+    return Object.prototype.hasOwnProperty.call(INCIDENT_SEVERITY, severity) ? severity : 'minor';
+  }
+
+  function stateLabel(state) {
+    return Object.prototype.hasOwnProperty.call(INCIDENT_STATE, state) ? INCIDENT_STATE[state] : 'Investigating';
   }
 
   function statusInfo(status) {
@@ -527,6 +571,31 @@ a { color: inherit; text-decoration: none; }
 
   function dayLabel(date) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function fmtIncidentDate(iso) {
+    var date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return 'Unknown date';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  }
+
+  function fmtIncidentTime(iso) {
+    var date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return 'Unknown time';
+    var day = String(date.getUTCDate());
+    var month = date.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+    var hour = String(date.getUTCHours()).padStart(2, '0');
+    var minute = String(date.getUTCMinutes()).padStart(2, '0');
+    return day + ' ' + month + ' · ' + hour + ':' + minute;
+  }
+
+  function fmtDurationMin(minutes) {
+    if (typeof minutes !== 'number' || !isFinite(minutes) || minutes < 0) return 'Duration unknown';
+    var rounded = Math.round(minutes);
+    if (rounded < 60) return rounded + ' min';
+    var hours = Math.floor(rounded / 60);
+    var mins = rounded % 60;
+    return mins ? hours + ' h ' + mins + ' m' : hours + ' h';
   }
 
   function statusLabel(status) {
@@ -657,6 +726,144 @@ a { color: inherit; text-decoration: none; }
     return row;
   }
 
+  function incidentTitle(incident) {
+    if (typeof incident.title === 'string' && incident.title.trim()) return incident.title.trim();
+    var label = typeof incident.label === 'string' && incident.label.trim() ? incident.label.trim() : 'Service';
+    return validIncidentSeverity(incident.severity) === 'major' ? label + ' was unavailable' : 'Elevated latency on ' + label;
+  }
+
+  function fallbackUpdates(incident) {
+    var status = validIncidentStatus(incident.status);
+    var label = typeof incident.label === 'string' && incident.label.trim() ? incident.label.trim() : 'Service';
+    if (status === 'resolved') {
+      return [{
+        at: incident.resolved_at || incident.started_at,
+        state: 'resolved',
+        text: label + ' recovered after ' + fmtDurationMin(incident.duration_min) + '.'
+      }];
+    }
+    return [{
+      at: incident.started_at,
+      state: 'investigating',
+      text: "We're looking into elevated errors on " + label + '.'
+    }];
+  }
+
+  function normalizedIncidentUpdates(incident) {
+    var updates = Array.isArray(incident.updates) && incident.updates.length ? incident.updates : fallbackUpdates(incident);
+    return updates.slice(0, 3).map(function(update) {
+      return {
+        at: typeof update.at === 'string' ? update.at : incident.started_at,
+        state: typeof update.state === 'string' ? update.state : 'investigating',
+        text: typeof update.text === 'string' ? update.text : ''
+      };
+    }).filter(function(update) {
+      return update.text.trim();
+    }).sort(function(left, right) {
+      return new Date(right.at).getTime() - new Date(left.at).getTime();
+    });
+  }
+
+  function appendTag(parent, label, className) {
+    var tag = document.createElement('span');
+    tag.className = className ? 'tag ' + className : 'tag';
+    tag.textContent = label;
+    parent.appendChild(tag);
+  }
+
+  function buildIncidentCard(incident) {
+    var status = validIncidentStatus(incident.status);
+    var severity = validIncidentSeverity(incident.severity);
+    var article = document.createElement('article');
+    article.className = 'inc';
+
+    var top = document.createElement('div');
+    top.className = 'inc-top';
+    var title = document.createElement('h3');
+    title.textContent = incidentTitle(incident);
+    var date = document.createElement('span');
+    date.className = 'inc-date';
+    date.textContent = fmtIncidentDate(incident.started_at);
+    top.appendChild(title);
+    top.appendChild(date);
+    article.appendChild(top);
+
+    var tags = document.createElement('div');
+    tags.className = 'inc-tags';
+    appendTag(tags, INCIDENT_STATUS[status], status === 'resolved' ? 'resolved' : '');
+    appendTag(tags, INCIDENT_SEVERITY[severity], '');
+    appendTag(tags, typeof incident.label === 'string' ? incident.label : 'Service', '');
+    appendTag(tags, status === 'resolved' ? fmtDurationMin(incident.duration_min) : 'In progress', '');
+    article.appendChild(tags);
+
+    var list = document.createElement('ul');
+    list.className = 'tl';
+    normalizedIncidentUpdates(incident).forEach(function(update) {
+      var item = document.createElement('li');
+      var when = document.createElement('span');
+      when.className = 'when';
+      when.textContent = fmtIncidentTime(update.at);
+      var what = document.createElement('span');
+      what.className = 'what';
+      var strong = document.createElement('b');
+      strong.textContent = stateLabel(update.state);
+      what.appendChild(strong);
+      what.appendChild(document.createTextNode(update.text));
+      item.appendChild(when);
+      item.appendChild(what);
+      list.appendChild(item);
+    });
+    article.appendChild(list);
+    return article;
+  }
+
+  function oldestHistoryDate(histories) {
+    var dates = [];
+    Object.keys(histories || {}).forEach(function(key) {
+      (histories[key] || []).forEach(function(day) {
+        if (day && typeof day.date === 'string') dates.push(day.date);
+      });
+    });
+    dates.sort();
+    return dates[0] || null;
+  }
+
+  function operationalDays(incidents, histories) {
+    var resolved = incidents.map(function(incident) {
+      return incident && incident.resolved_at;
+    }).filter(Boolean).sort().pop();
+    var since = resolved || oldestHistoryDate(histories);
+    if (!since) return 0;
+    var start = new Date(since).getTime();
+    if (!Number.isFinite(start)) return 0;
+    return Math.max(0, Math.floor((Date.now() - start) / MS_DAY));
+  }
+
+  function renderIncidents(feed, histories) {
+    var incidents = feed && Array.isArray(feed.incidents) ? feed.incidents : [];
+    var activeCount = feed && typeof feed.active_count === 'number' ? feed.active_count : incidents.filter(function(incident) {
+      return validIncidentStatus(incident.status) !== 'resolved';
+    }).length;
+    var banner = $('incidentBanner');
+    var cards = $('incidentCards');
+    clear(cards);
+
+    if (activeCount > 0) {
+      var active = incidents.find(function(incident) { return validIncidentStatus(incident.status) === 'ongoing'; }) || incidents[0];
+      banner.className = 'inc-banner ' + (active && validIncidentSeverity(active.severity) === 'major' ? 'down' : 'warn');
+      setText('incidentBannerTitle', activeCount + ' active incident' + (activeCount === 1 ? '.' : 's.'));
+      setText('incidentNote', active ? 'Investigating elevated errors on ' + (active.label || 'a monitored service') + '.' : 'Incident details are temporarily unavailable.');
+    } else {
+      banner.className = 'inc-banner';
+      setText('incidentBannerTitle', 'No active incidents.');
+      setText('incidentNote', 'All services have been operational for ' + operationalDays(incidents, histories) + ' days.');
+    }
+
+    incidents.forEach(function(incident) {
+      cards.appendChild(buildIncidentCard(incident));
+    });
+  }
+
   function latestByDay(checks) {
     var byDate = {};
     checks.forEach(function(check) {
@@ -677,7 +884,8 @@ a { color: inherit; text-decoration: none; }
       var check = byDate[key];
       days.push({
         status: check ? validStatus(check.status) : 'nodata',
-        label: dayLabel(day)
+        label: dayLabel(day),
+        date: key
       });
     }
     return days;
@@ -689,7 +897,8 @@ a { color: inherit; text-decoration: none; }
       return data.daily.slice(-90).map(function(day) {
         return {
           status: validStatus(day.status),
-          label: String(day.date || 'Unknown date')
+          label: String(day.date || 'Unknown date'),
+          date: String(day.date || '')
         };
       });
     }
@@ -741,13 +950,14 @@ a { color: inherit; text-decoration: none; }
     grid.appendChild(state);
   }
 
-  function render(summary, histories) {
+  function render(summary, histories, incidentFeed) {
     var services = summary && summary.services ? summary.services : {};
     var status = overallStatus(services);
     var statusMeta = statusInfo(status);
     var generatedAt = typeof summary.generated_at === 'string' ? summary.generated_at : null;
     var downCount = SERVICE_ORDER.filter(function(key) { return validStatus(services[key] && services[key].status) === 'down'; }).length;
     var degradedCount = SERVICE_ORDER.filter(function(key) { return validStatus(services[key] && services[key].status) === 'degraded'; }).length;
+    var activeIncidents = incidentFeed && typeof incidentFeed.active_count === 'number' ? incidentFeed.active_count : downCount + degradedCount;
 
     setText('overallTitle', statusMeta.headline);
     if (status === 'up') {
@@ -768,8 +978,8 @@ a { color: inherit; text-decoration: none; }
     var avgUptime = average(SERVICE_ORDER.map(function(key) { return services[key] && services[key].uptime_90d; }));
     setText('uptimeKpi', avgUptime === null ? '--' : fmtPct(avgUptime));
     $('uptimeKpi').className = 'v ' + (status === 'down' ? 'down' : status === 'degraded' ? 'warn' : 'good');
-    setText('incidentsKpi', String(downCount + degradedCount));
-    $('incidentsKpi').className = 'v ' + (downCount ? 'down' : degradedCount ? 'warn' : '');
+    setText('incidentsKpi', String(activeIncidents));
+    $('incidentsKpi').className = 'v ' + (activeIncidents ? (downCount ? 'down' : 'warn') : '');
     setText('latencyKpi', fmtLatency(median(SERVICE_ORDER.map(function(key) { return services[key] && services[key].latency_ms; }))));
 
     var grid = $('svcGrid');
@@ -780,6 +990,7 @@ a { color: inherit; text-decoration: none; }
       grid.appendChild(buildCard(key, services[key], histories[key]));
       rows.appendChild(buildUptimeRow(key, services[key], histories[key]));
     });
+    renderIncidents(incidentFeed, histories);
   }
 
   function loadStatus() {
@@ -789,12 +1000,20 @@ a { color: inherit; text-decoration: none; }
         return response.json();
       })
       .then(function(summary) {
-        return Promise.all(SERVICE_ORDER.map(fetchHistory)).then(function(historyList) {
+        return Promise.all([
+          Promise.all(SERVICE_ORDER.map(fetchHistory)),
+          fetch('./incidents.json', { cache: 'no-store' }).then(function(response) {
+            if (!response.ok) return { active_count: 0, incidents: [] };
+            return response.json();
+          }).catch(function() { return { active_count: 0, incidents: [] }; })
+        ]).then(function(results) {
+          var historyList = results[0];
+          var incidentFeed = results[1];
           var histories = {};
           SERVICE_ORDER.forEach(function(key, index) {
             histories[key] = historyList[index];
           });
-          render(summary, histories);
+          render(summary, histories, incidentFeed);
         });
       })
       .catch(renderLoadFailure);
