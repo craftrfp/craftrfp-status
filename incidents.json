@@ -1,7 +1,18 @@
 {
-  "generated_at": "2026-08-11T12:25:40.911Z",
-  "active_count": 0,
+  "generated_at": "2026-08-11T13:58:04.015Z",
+  "active_count": 1,
   "incidents": [
+    {
+      "id": "db:2026-08-11T12:25:41.732Z",
+      "service": "db",
+      "label": "Database",
+      "severity": "minor",
+      "started_at": "2026-08-11T12:25:41.732Z",
+      "resolved_at": null,
+      "status": "ongoing",
+      "duration_min": null,
+      "peak_latency_ms": 612
+    },
     {
       "id": "db:2026-07-10T12:37:04.179Z",
       "service": "db",
