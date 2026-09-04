@@ -2,26 +2,6 @@
   "service": "marketing",
   "checks": [
     {
-      "checked_at": "2026-06-05T19:40:39.209Z",
-      "status": "down",
-      "latency_ms": 0
-    },
-    {
-      "checked_at": "2026-06-05T20:27:25.961Z",
-      "status": "down",
-      "latency_ms": 0
-    },
-    {
-      "checked_at": "2026-06-05T21:07:49.801Z",
-      "status": "down",
-      "latency_ms": 0
-    },
-    {
-      "checked_at": "2026-06-05T21:45:08.929Z",
-      "status": "down",
-      "latency_ms": 0
-    },
-    {
       "checked_at": "2026-06-05T22:18:28.884Z",
       "status": "down",
       "latency_ms": 0
@@ -14297,6 +14277,12 @@
     },
     {
       "checked_at": "2026-09-04T19:37:55.060Z",
+      "status": "down",
+      "latency_ms": 0,
+      "maintenance": true
+    },
+    {
+      "checked_at": "2026-09-04T21:50:59.994Z",
       "status": "down",
       "latency_ms": 0,
       "maintenance": true
