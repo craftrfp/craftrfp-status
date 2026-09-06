@@ -2,31 +2,6 @@
   "service": "db",
   "checks": [
     {
-      "checked_at": "2026-06-07T12:47:00.234Z",
-      "status": "degraded",
-      "latency_ms": 732
-    },
-    {
-      "checked_at": "2026-06-07T13:23:46.416Z",
-      "status": "up",
-      "latency_ms": 151
-    },
-    {
-      "checked_at": "2026-06-07T14:14:42.125Z",
-      "status": "up",
-      "latency_ms": 177
-    },
-    {
-      "checked_at": "2026-06-07T14:58:57.500Z",
-      "status": "up",
-      "latency_ms": 292
-    },
-    {
-      "checked_at": "2026-06-07T15:38:08.548Z",
-      "status": "up",
-      "latency_ms": 240
-    },
-    {
       "checked_at": "2026-06-07T16:09:54.991Z",
       "status": "up",
       "latency_ms": 246
@@ -12380,6 +12355,11 @@
       "checked_at": "2026-09-06T12:33:42.410Z",
       "status": "up",
       "latency_ms": 247
+    },
+    {
+      "checked_at": "2026-09-06T15:44:37.827Z",
+      "status": "up",
+      "latency_ms": 315
     }
   ]
 }
