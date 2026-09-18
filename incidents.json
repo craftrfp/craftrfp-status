@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-18T15:40:04.629Z",
-  "active_count": 1,
+  "generated_at": "2026-09-18T15:49:39.721Z",
+  "active_count": 0,
   "incidents": [
     {
       "id": "db:2026-09-18T15:27:31.120Z",
@@ -8,10 +8,23 @@
       "label": "Database",
       "severity": "minor",
       "started_at": "2026-09-18T15:27:31.120Z",
-      "resolved_at": null,
-      "status": "ongoing",
-      "duration_min": null,
-      "peak_latency_ms": 3230
+      "resolved_at": "2026-09-18T15:49:41.623Z",
+      "status": "resolved",
+      "duration_min": 22,
+      "peak_latency_ms": 3230,
+      "narrative_source": "template",
+      "updates": [
+        {
+          "at": "2026-09-18T15:27:31.120Z",
+          "state": "identified",
+          "text": "Database was running slower than normal (checks failing, latency peaked at 3230 ms)."
+        },
+        {
+          "at": "2026-09-18T15:49:41.623Z",
+          "state": "resolved",
+          "text": "Database recovered automatically after 22 min. No action needed from users."
+        }
+      ]
     },
     {
       "id": "db:2026-09-17T01:48:38.073Z",
