@@ -2,11 +2,6 @@
   "service": "scribe",
   "daily": [
     {
-      "date": "2026-06-22",
-      "status": "up",
-      "uptime_pct": 100
-    },
-    {
       "date": "2026-06-23",
       "status": "up",
       "uptime_pct": 100
@@ -450,6 +445,11 @@
       "date": "2026-09-19",
       "status": "degraded",
       "uptime_pct": 99.07
+    },
+    {
+      "date": "2026-09-20",
+      "status": "up",
+      "uptime_pct": 100
     }
   ]
 }
