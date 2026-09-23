@@ -1,7 +1,18 @@
 {
-  "generated_at": "2026-09-23T13:54:33.657Z",
-  "active_count": 0,
+  "generated_at": "2026-09-23T14:15:45.994Z",
+  "active_count": 1,
   "incidents": [
+    {
+      "id": "auth:2026-09-23T13:54:40.051Z",
+      "service": "auth",
+      "label": "Authentication",
+      "severity": "minor",
+      "started_at": "2026-09-23T13:54:40.051Z",
+      "resolved_at": null,
+      "status": "ongoing",
+      "duration_min": null,
+      "peak_latency_ms": 4837
+    },
     {
       "id": "db:2026-09-23T13:00:22.642Z",
       "service": "db",
