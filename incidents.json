@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-23T14:32:17.520Z",
-  "active_count": 1,
+  "generated_at": "2026-09-23T14:45:37.184Z",
+  "active_count": 0,
   "incidents": [
     {
       "id": "auth:2026-09-23T13:54:40.051Z",
@@ -8,10 +8,23 @@
       "label": "Authentication",
       "severity": "minor",
       "started_at": "2026-09-23T13:54:40.051Z",
-      "resolved_at": null,
-      "status": "ongoing",
-      "duration_min": null,
-      "peak_latency_ms": 4837
+      "resolved_at": "2026-09-23T14:45:41.542Z",
+      "status": "resolved",
+      "duration_min": 51,
+      "peak_latency_ms": 4837,
+      "narrative_source": "template",
+      "updates": [
+        {
+          "at": "2026-09-23T13:54:40.051Z",
+          "state": "identified",
+          "text": "Authentication was running slower than normal (checks failing, latency peaked at 4837 ms)."
+        },
+        {
+          "at": "2026-09-23T14:45:41.542Z",
+          "state": "resolved",
+          "text": "Authentication recovered automatically after 51 min. No action needed from users."
+        }
+      ]
     },
     {
       "id": "db:2026-09-23T13:00:22.642Z",
