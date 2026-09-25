@@ -2,11 +2,6 @@
   "service": "exports",
   "checks": [
     {
-      "checked_at": "2026-06-26T14:09:31.916Z",
-      "status": "up",
-      "latency_ms": 291
-    },
-    {
       "checked_at": "2026-06-26T15:10:40.424Z",
       "status": "up",
       "latency_ms": 286
@@ -16085,6 +16080,11 @@
       "checked_at": "2026-09-25T13:56:09.005Z",
       "status": "up",
       "latency_ms": 347
+    },
+    {
+      "checked_at": "2026-09-25T14:21:36.791Z",
+      "status": "up",
+      "latency_ms": 244
     }
   ]
 }
