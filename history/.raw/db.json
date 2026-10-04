@@ -2,21 +2,6 @@
   "service": "db",
   "checks": [
     {
-      "checked_at": "2026-07-05T16:57:37.093Z",
-      "status": "up",
-      "latency_ms": 237
-    },
-    {
-      "checked_at": "2026-07-05T17:31:24.034Z",
-      "status": "up",
-      "latency_ms": 204
-    },
-    {
-      "checked_at": "2026-07-05T17:59:03.403Z",
-      "status": "up",
-      "latency_ms": 214
-    },
-    {
       "checked_at": "2026-07-05T18:31:25.583Z",
       "status": "up",
       "latency_ms": 412
@@ -18165,6 +18150,11 @@
       "checked_at": "2026-10-04T16:45:08.150Z",
       "status": "up",
       "latency_ms": 396
+    },
+    {
+      "checked_at": "2026-10-04T17:59:05.195Z",
+      "status": "up",
+      "latency_ms": 209
     }
   ]
 }
