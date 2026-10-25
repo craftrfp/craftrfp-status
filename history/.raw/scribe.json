@@ -2,11 +2,6 @@
   "service": "scribe",
   "checks": [
     {
-      "checked_at": "2026-07-26T23:45:50.288Z",
-      "status": "up",
-      "latency_ms": 1106
-    },
-    {
       "checked_at": "2026-07-27T00:12:12.405Z",
       "status": "up",
       "latency_ms": 1164
@@ -23315,6 +23310,11 @@
       "checked_at": "2026-10-25T23:39:32.747Z",
       "status": "up",
       "latency_ms": 1072
+    },
+    {
+      "checked_at": "2026-10-25T23:49:59.245Z",
+      "status": "up",
+      "latency_ms": 1078
     }
   ]
 }
