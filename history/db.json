@@ -2,11 +2,6 @@
   "service": "db",
   "daily": [
     {
-      "date": "2026-08-02",
-      "status": "degraded",
-      "uptime_pct": 97.44
-    },
-    {
       "date": "2026-08-03",
       "status": "degraded",
       "uptime_pct": 96.43
@@ -450,6 +445,11 @@
       "date": "2026-10-30",
       "status": "degraded",
       "uptime_pct": 98.39
+    },
+    {
+      "date": "2026-10-31",
+      "status": "up",
+      "uptime_pct": 100
     }
   ]
 }
