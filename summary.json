@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-11-01T16:56:42.938Z",
+  "generated_at": "2026-11-01T17:09:11.189Z",
   "services": {
     "marketing": {
       "status": "down",
       "latency_ms": 0,
-      "checked_at": "2026-11-01T16:56:42.938Z",
+      "checked_at": "2026-11-01T17:09:11.189Z",
       "maintenance": true,
       "uptime_24h": 0,
       "uptime_90d": 0
@@ -12,35 +12,35 @@
     "api": {
       "status": "up",
       "latency_ms": 0,
-      "checked_at": "2026-11-01T16:56:43.297Z",
+      "checked_at": "2026-11-01T17:09:12.847Z",
       "uptime_24h": 100,
       "uptime_90d": 99.99
     },
     "db": {
       "status": "up",
-      "latency_ms": 176,
-      "checked_at": "2026-11-01T16:56:44.590Z",
+      "latency_ms": 215,
+      "checked_at": "2026-11-01T17:09:12.818Z",
       "uptime_24h": 97.84,
       "uptime_90d": 96.37
     },
     "scribe": {
       "status": "up",
-      "latency_ms": 800,
-      "checked_at": "2026-11-01T16:56:45.277Z",
+      "latency_ms": 849,
+      "checked_at": "2026-11-01T17:09:12.768Z",
       "uptime_24h": 98.56,
       "uptime_90d": 98.3
     },
     "exports": {
       "status": "up",
-      "latency_ms": 291,
-      "checked_at": "2026-11-01T16:56:44.284Z",
+      "latency_ms": 258,
+      "checked_at": "2026-11-01T17:09:13.544Z",
       "uptime_24h": 100,
       "uptime_90d": 100
     },
     "auth": {
       "status": "up",
-      "latency_ms": 368,
-      "checked_at": "2026-11-01T16:56:43.654Z",
+      "latency_ms": 417,
+      "checked_at": "2026-11-01T17:09:12.989Z",
       "uptime_24h": 100,
       "uptime_90d": 99.8
     }
