@@ -1,7 +1,18 @@
 {
-  "generated_at": "2026-11-06T17:07:13.392Z",
-  "active_count": 0,
+  "generated_at": "2026-11-06T17:16:09.827Z",
+  "active_count": 1,
   "incidents": [
+    {
+      "id": "db:2026-11-06T17:07:14.559Z",
+      "service": "db",
+      "label": "Database",
+      "severity": "minor",
+      "started_at": "2026-11-06T17:07:14.559Z",
+      "resolved_at": null,
+      "status": "ongoing",
+      "duration_min": null,
+      "peak_latency_ms": 946
+    },
     {
       "id": "scribe:2026-11-06T16:26:01.773Z",
       "service": "scribe",
