@@ -2,12 +2,6 @@
   "service": "marketing",
   "checks": [
     {
-      "checked_at": "2026-08-08T09:47:13.191Z",
-      "status": "down",
-      "latency_ms": 0,
-      "maintenance": true
-    },
-    {
       "checked_at": "2026-08-08T10:17:10.829Z",
       "status": "down",
       "latency_ms": 0,
@@ -34953,6 +34947,12 @@
     },
     {
       "checked_at": "2026-11-07T09:42:28.893Z",
+      "status": "down",
+      "latency_ms": 0,
+      "maintenance": true
+    },
+    {
+      "checked_at": "2026-11-07T09:51:36.451Z",
       "status": "down",
       "latency_ms": 0,
       "maintenance": true
