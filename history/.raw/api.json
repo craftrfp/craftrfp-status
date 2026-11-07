@@ -2,11 +2,6 @@
   "service": "api",
   "checks": [
     {
-      "checked_at": "2026-08-08T08:02:30.667Z",
-      "status": "up",
-      "latency_ms": 0
-    },
-    {
       "checked_at": "2026-08-08T08:56:01.192Z",
       "status": "up",
       "latency_ms": 0
@@ -29088,6 +29083,11 @@
     },
     {
       "checked_at": "2026-11-07T07:56:55.581Z",
+      "status": "up",
+      "latency_ms": 0
+    },
+    {
+      "checked_at": "2026-11-07T08:15:13.750Z",
       "status": "up",
       "latency_ms": 0
     }
