@@ -1,7 +1,18 @@
 {
-  "generated_at": "2026-11-13T10:35:02.108Z",
-  "active_count": 0,
+  "generated_at": "2026-11-13T10:44:10.221Z",
+  "active_count": 1,
   "incidents": [
+    {
+      "id": "scribe:2026-11-13T10:35:02.108Z",
+      "service": "scribe",
+      "label": "AI Scribe",
+      "severity": "major",
+      "started_at": "2026-11-13T10:35:02.108Z",
+      "resolved_at": null,
+      "status": "ongoing",
+      "duration_min": null,
+      "peak_latency_ms": 5012
+    },
     {
       "id": "scribe:2026-11-12T17:49:44.265Z",
       "service": "scribe",
