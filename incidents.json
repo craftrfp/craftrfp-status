@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-13T17:40:06.635Z",
-  "active_count": 1,
+  "generated_at": "2026-11-13T17:49:18.136Z",
+  "active_count": 0,
   "incidents": [
     {
       "id": "scribe:2026-11-13T17:31:08.090Z",
@@ -8,10 +8,23 @@
       "label": "AI Scribe",
       "severity": "major",
       "started_at": "2026-11-13T17:31:08.090Z",
-      "resolved_at": null,
-      "status": "ongoing",
-      "duration_min": null,
-      "peak_latency_ms": 4965
+      "resolved_at": "2026-11-13T17:49:22.327Z",
+      "status": "resolved",
+      "duration_min": 18,
+      "peak_latency_ms": 4965,
+      "narrative_source": "template",
+      "updates": [
+        {
+          "at": "2026-11-13T17:31:08.090Z",
+          "state": "identified",
+          "text": "AI Scribe was unreachable (checks failing, latency peaked at 4965 ms)."
+        },
+        {
+          "at": "2026-11-13T17:49:22.327Z",
+          "state": "resolved",
+          "text": "AI Scribe recovered automatically after 18 min. No action needed from users."
+        }
+      ]
     },
     {
       "id": "scribe:2026-11-13T11:52:05.062Z",
