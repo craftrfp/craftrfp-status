@@ -2,11 +2,6 @@
   "service": "db",
   "checks": [
     {
-      "checked_at": "2026-08-26T13:13:32.730Z",
-      "status": "up",
-      "latency_ms": 239
-    },
-    {
       "checked_at": "2026-08-26T14:07:36.331Z",
       "status": "up",
       "latency_ms": 226
@@ -38010,6 +38005,11 @@
       "checked_at": "2026-11-25T12:58:41.651Z",
       "status": "up",
       "latency_ms": 362
+    },
+    {
+      "checked_at": "2026-11-25T13:13:59.321Z",
+      "status": "up",
+      "latency_ms": 282
     }
   ]
 }
